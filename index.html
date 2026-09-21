@@ -105,6 +105,25 @@ output{font-variant-numeric:tabular-nums;min-width:3.4em;font-weight:500}
 .readout{font-size:.95rem;margin:14px 0 0;max-width:none;padding-left:12px;border-left:3px solid var(--accent);line-height:1.9}
 .readout b{font-variant-numeric:tabular-nums}
 
+.notes{max-width:36em;margin:0 0 1em;padding-left:14px;border-left:3px solid var(--line)}
+.notes p{font-size:.96rem;margin:0 0 .5em}
+.mop.big{font-size:1.05rem;color:var(--ink);font-weight:700;white-space:nowrap}
+/* worked example matrix */
+.mx-wrap{overflow-x:auto;padding:6px 0 10px;-webkit-overflow-scrolling:touch}
+.mx{display:flex;align-items:center;gap:10px;min-width:max-content}
+.mcol{display:flex;flex-direction:column;align-items:center}
+.mcol .lab{font-size:.78rem;color:var(--muted);margin-bottom:4px;white-space:nowrap;line-height:1.5}
+.mgrid{display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.mgrid.br{border-left:2px solid var(--ink);border-right:2px solid var(--ink);padding:2px 5px;border-radius:4px}
+.mgrid .c{min-width:36px;padding:4px 5px;text-align:right;font-size:.86rem;line-height:1.4;border-radius:2px;color:var(--ink)}
+.mgrid .c.z{opacity:.3}
+.mgrid .c[data-row]{cursor:pointer}
+.mgrid .c.xl{color:var(--muted);font-size:.8rem}
+.mgrid .c.hl{background:color-mix(in srgb,var(--la) 30%,transparent);font-weight:700}
+.mgrid .c.hlr{background:var(--calc);color:var(--on);font-weight:700}
+.mgrid .c.hlt{background:color-mix(in srgb,var(--calc) 18%,transparent);font-weight:700}
+.mop{font-size:1.2rem;color:var(--muted);padding:0 2px}
+
 /* permuter */
 .perm{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:center}
 @media (max-width:700px){.perm{grid-template-columns:1fr}}
@@ -166,10 +185,42 @@ footer{margin-top:48px;font-size:.82rem;color:var(--muted);max-width:none}
   <h2>函数是向量，求导是矩阵</h2>
   <p>先看 <span class="la">线性代数</span> 和 <span class="calc">高等数学</span> 怎么合流。</p>
   <p>把一个函数在一排位置 \(x_0,x_1,\dots,x_{N-1}\) 上取值，得到一列数，也就是一个向量 \(\mathbf f=(f(x_0),\dots,f(x_{N-1}))\)。位置取得越密，向量越长；密到极限，就是无穷维向量。</p>
-  <p>这时“求导”变成了一个矩阵：每个位置的导数，是右邻居减左邻居，再除以间距 \(h\)。</p>
+  <p>这时“求导”变成了一个矩阵。每个位置的导数，都用它相邻的两个值来近似：</p>
   <div class="eq">\[ (D\mathbf f)_i\;\approx\;\frac{f_{i+1}-f_{i-1}}{2h} \]</div>
-  <div class="eq">\[ D=\frac{1}{2h}\begin{pmatrix}-2&2&&&\\-1&0&1&&\\&-1&0&1&\\&&\ddots&\ddots&\ddots\\&&&-2&2\end{pmatrix} \]</div>
-  <p>矩阵乘以向量，就是求导。拖动滑块试试。</p>
+  <p>这个式子本身，就是矩阵 \(D\) 的第 \(i\) 行。把所有行摞起来，并把公因子 \(\frac{1}{2h}\) 提到外面，剩下一个只有 \(-1,0,1\) 的整数矩阵 \(M\)：</p>
+  <div class="eq">\[ D=\frac{1}{2h}\,M,\qquad M=\begin{pmatrix}-2&2&&&\\-1&0&1&&\\&-1&0&1&\\&&\ddots&\ddots&\ddots\\&&&-2&2\end{pmatrix} \]</div>
+  <div class="notes">
+    <p><b>中间各行：</b>用左右两个邻居。第 \(i\) 行在位置 \(i-1\) 放 \(-1\)，在位置 \(i+1\) 放 \(1\)，其余是 0。</p>
+    <p><b>第一行和最后一行：</b>只有一个邻居，只能用单侧差分，比如 \(\frac{f_1-f_0}{h}\)。它的公因子是 \(\frac{1}{h}\)，而不是 \(\frac{1}{2h}\)。为了和别的行共用 \(\frac{1}{2h}\)，把它写成 \(\frac{1}{2h}(-2,\;2)\)。</p>
+  </div>
+  <p>下面的例子取 5 个点、\(h=0.25\)，于是 \(\frac{1}{2h}=2\)。把这个 2 乘进 \(M\) 的每个元素，就得到右边这个矩阵，它们是<b>同一个矩阵</b>，只是写法不同：</p>
+  <div class="eq">\[ D=2\begin{pmatrix}-2&2&0&0&0\\-1&0&1&0&0\\0&-1&0&1&0\\0&0&-1&0&1\\0&0&0&-2&2\end{pmatrix}=\begin{pmatrix}-4&4&0&0&0\\-2&0&2&0&0\\0&-2&0&2&0\\0&0&-2&0&2\\0&0&0&-4&4\end{pmatrix} \]</div>
+  <p>矩阵乘以向量，就是求导。下面用它手算一遍。</p>
+
+  <div class="widget" style="--accent:var(--la)">
+    <h4>手算一遍：5 个点，矩阵乘向量</h4>
+    <p class="hint">取 \(x=0,\,0.25,\,0.5,\,0.75,\,1\)，间距 \(h=0.25\)。选一行，看这一行的数从哪来，又怎么算出一个导数值。</p>
+    <div class="controls">
+      <div class="seg" id="exSeg" role="group" aria-label="选择函数">
+        <button type="button" data-ex="sq" aria-pressed="true">\(x^{2}\)</button>
+        <button type="button" data-ex="exp" aria-pressed="false">\(e^{x}\)</button>
+        <button type="button" data-ex="sin" aria-pressed="false">\(\sin(\pi x)\)</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:.92rem">看第几行</span><div class="chips" id="exRows" role="group" aria-label="选择矩阵的行"></div></div>
+    </div>
+    <div class="controls" style="margin-top:-4px">
+      <span style="font-size:.92rem">矩阵的写法</span>
+      <div class="seg" id="exModeSeg" role="group" aria-label="矩阵的写法">
+        <button type="button" data-em="D" aria-pressed="true">\(D\)（2 已乘进去）</button>
+        <button type="button" data-em="M" aria-pressed="false">\(2\times M\)（2 提到外面）</button>
+      </div>
+    </div>
+    <div class="mx-wrap"><div class="mx" id="exMx"></div></div>
+    <div class="legend"><span><i class="sw" style="background:color-mix(in srgb,var(--la) 55%,transparent)"></i>这一行用到的数</span><span><i class="sw" style="background:var(--calc)"></i>算出的导数</span><span>也可以直接点矩阵的某一行</span></div>
+    <p class="readout" id="exRead"></p>
+  </div>
+
+  <p>点数越多，矩阵越大，结果越接近真实导数。拖动滑块试试。</p>
 
   <div class="widget" style="--accent:var(--la)">
     <h4>把函数摊成向量，用矩阵求导</h4>
@@ -190,7 +241,7 @@ footer{margin-top:48px;font-size:.82rem;color:var(--muted);max-width:none}
       </div>
       <div>
         <canvas class="cvsq" id="cvD" role="img" aria-label="差分矩阵的非零位置图"></canvas>
-        <p class="cap">求导矩阵 \(D\)（\(N\times N\)）：只有对角线两侧有值，第一行和最后一行用单侧差分。</p>
+        <p class="cap">求导矩阵 \(D\)（\(N\times N\)）：只有对角线两侧有值，中间行是 \(\pm\frac{1}{2h}\)，第一行和最后一行是 \(\pm\frac{1}{h}\)。点越密 \(h\) 越小，这些数就越大。</p>
       </div>
     </div>
     <p class="readout" id="dRead"></p>
@@ -366,6 +417,88 @@ function M(t){
 }
 
 function start(){
+
+/* ========== 0. 手算例子：5 个点 ========== */
+(function(){
+  var xs=[0,0.25,0.5,0.75,1],h=0.25,N=5,fn='sq',row=2,mode='D',i,j;
+  var F={
+    sq:{f:function(x){return x*x;},d:function(x){return 2*x;}},
+    exp:{f:function(x){return Math.exp(x);},d:function(x){return Math.exp(x);}},
+    sin:{f:function(x){return Math.sin(Math.PI*x);},d:function(x){return Math.PI*Math.cos(Math.PI*x);}}
+  };
+  var D=[];
+  for(i=0;i<N;i++){
+    var r=[0,0,0,0,0];
+    if(i===0){r[0]=-1/h;r[1]=1/h;}
+    else if(i===N-1){r[N-2]=-1/h;r[N-1]=1/h;}
+    else{r[i-1]=-1/(2*h);r[i+1]=1/(2*h);}
+    D.push(r);
+  }
+  function num(x){if(Math.abs(x)<1e-9)x=0;return String(+x.toFixed(4));}
+  function uni(s){return s.replace('-','−');}
+  var rows=$('#exRows');
+  for(i=0;i<N;i++){
+    var bt=document.createElement('button');bt.type='button';bt.className='chip';bt.setAttribute('data-r',i);bt.textContent=i;
+    (function(k){bt.addEventListener('click',function(){row=k;render();});})(i);
+    rows.appendChild(bt);
+  }
+  function render(){
+    var g=F[fn],f=xs.map(g.f),tr=xs.map(g.d),df=[],sc=(mode==='M')?2:1;
+    for(i=0;i<N;i++){var s=0;for(j=0;j<N;j++)s+=D[i][j]*f[j];df.push(s);}
+    var html='';
+    html+='<div class="mcol"><div class="lab">x</div><div class="mgrid">';
+    for(i=0;i<N;i++)html+='<div class="c xl'+(i===row?' hl':'')+'" data-row="'+i+'">'+num(xs[i])+'</div>';
+    html+='</div></div>';
+    if(mode==='M')html+='<div class="mop big">2 ×</div>';
+    html+='<div class="mcol"><div class="lab">'+(mode==='M'?'整数矩阵 M':'求导矩阵 D')+'</div><div class="mgrid br" style="grid-template-columns:repeat(5,auto)">';
+    for(i=0;i<N;i++)for(j=0;j<N;j++){var e=D[i][j]/sc;html+='<div class="c'+(e===0?' z':'')+(i===row?' hl':'')+'" data-row="'+i+'">'+uni(String(e))+'</div>';}
+    html+='</div></div><div class="mop">×</div>';
+    html+='<div class="mcol"><div class="lab">向量 f</div><div class="mgrid br">';
+    for(j=0;j<N;j++)html+='<div class="c'+(D[row][j]!==0?' hl':'')+'">'+uni(num(f[j]))+'</div>';
+    html+='</div></div><div class="mop">=</div>';
+    html+='<div class="mcol"><div class="lab">D f</div><div class="mgrid br">';
+    for(i=0;i<N;i++)html+='<div class="c'+(i===row?' hlr':'')+'" data-row="'+i+'">'+uni(num(df[i]))+'</div>';
+    html+='</div></div>';
+    html+='<div class="mcol" style="margin-left:6px"><div class="lab">真实导数</div><div class="mgrid">';
+    for(i=0;i<N;i++)html+='<div class="c'+(i===row?' hlt':'')+'" data-row="'+i+'">'+uni(num(tr[i]))+'</div>';
+    html+='</div></div>';
+    $('#exMx').innerHTML=html;
+    setSeg('#exRows','data-r',String(row));
+    setSeg('#exSeg','data-ex',fn);
+    setSeg('#exModeSeg','data-em',mode);
+
+    /* 这一行的数从哪来 */
+    var why;
+    if(row>0&&row<N-1){
+      why='这一行的数怎么来：第 '+row+' 行是中间行，用左右邻居，'+M('(D\\mathbf f)_{'+row+'}=\\frac{f_{'+(row+1)+'}-f_{'+(row-1)+'}}{2h}')+'。所以位置 '+(row-1)+' 放 '+M('-1')+'，位置 '+(row+1)+' 放 '+M('1')+'，其余是 0，整行再乘 '+M('\\frac{1}{2h}=2')+'：'+M('2\\,(-1,\\;0,\\;1)=(-2,\\;0,\\;2)')+'。';
+    }else if(row===0){
+      why='这一行的数怎么来：第 0 行没有左邻居，只能用单侧差分 '+M('\\frac{f_1-f_0}{h}')+'。位置 0 放 '+M('-1')+'，位置 1 放 '+M('1')+'，整行乘 '+M('\\frac{1}{h}=4')+'：'+M('4\\,(-1,\\;1)=(-4,\\;4)')+'，写成 '+M('\\frac{1}{2h}')+' 的形式就是 '+M('2\\,(-2,\\;2)')+'。';
+    }else{
+      why='这一行的数怎么来：第 4 行没有右邻居，只能用单侧差分 '+M('\\frac{f_4-f_3}{h}')+'。位置 3 放 '+M('-1')+'，位置 4 放 '+M('1')+'，整行乘 '+M('\\frac{1}{h}=4')+'：'+M('4\\,(-1,\\;1)=(-4,\\;4)')+'，写成 '+M('\\frac{1}{2h}')+' 的形式就是 '+M('2\\,(-2,\\;2)')+'。';
+    }
+
+    /* 这一行的算术 */
+    var terms='',first=true;
+    for(j=0;j<N;j++){
+      var c=D[row][j]/sc;if(c===0)continue;
+      var t=Math.abs(c)+'\\times'+num(f[j]);
+      if(first){terms=(c<0?'-':'')+t;first=false;}else terms+=(c<0?'-':'+')+t;
+    }
+    var tex=(mode==='M')
+      ?'(D\\mathbf f)_{'+row+'}=2\\,('+terms+')=2\\times'+num(df[row]/2)+'='+num(df[row])
+      :'(D\\mathbf f)_{'+row+'}='+terms+'='+num(df[row]);
+    var err=Math.abs(df[row]-tr[row]);
+    var cmp='真实导数 '+M("f'(x_{"+row+"})="+num(tr[row]))+'，差 <b>'+num(err)+'</b>'+(err<1e-9?'，这里恰好精确。':'。');
+    $('#exRead').innerHTML=why+'<br>用这一行去乘向量：'+M(tex)+'。<br>'+cmp+' 五行都算完，就是矩阵乘以向量的结果。';
+  }
+  $('#exMx').addEventListener('click',function(e){
+    var el=e.target.closest?e.target.closest('[data-row]'):null;
+    if(el){row=+el.getAttribute('data-row');render();}
+  });
+  $$('[data-ex]').forEach(function(bt){bt.addEventListener('click',function(){fn=bt.getAttribute('data-ex');render();});});
+  $$('[data-em]').forEach(function(bt){bt.addEventListener('click',function(){mode=bt.getAttribute('data-em');render();});});
+  render();
+})();
 
 /* ========== 1a. 函数=向量，求导=矩阵 ========== */
 (function(){
