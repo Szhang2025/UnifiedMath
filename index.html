@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="pending">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>四门课，同一个空间的四种投影</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},
+  svg:{fontCache:'none',displayAlign:'left',displayIndent:'0'},
+  options:{enableMenu:false},
+  startup:{typeset:true}
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --bg:#EDEFF6; --surface:#F8F9FD; --ink:#191D3A; --muted:#565C80; --line:rgba(25,29,58,.16);
+  --la:#2B3A9B; --calc:#0B7A7D; --alg:#9C5A00; --prob:#B8325A; --on:#FFFFFF;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#101229; --surface:#191C3B; --ink:#E9EBFA; --muted:#A4A9CF; --line:rgba(233,235,250,.18);
+    --la:#8C9BFF; --calc:#45C6C4; --alg:#F2B04C; --prob:#F27C9F; --on:#101229;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101229; --surface:#191C3B; --ink:#E9EBFA; --muted:#A4A9CF; --line:rgba(233,235,250,.18);
+  --la:#8C9BFF; --calc:#45C6C4; --alg:#F2B04C; --prob:#F27C9F; --on:#101229;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:400 17px/1.85 var(--sans);-webkit-text-size-adjust:100%}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px 64px}
+a{color:inherit}
+button,input{font-family:inherit}
+:focus-visible{outline:3px solid var(--accent,var(--la));outline-offset:2px}
+main{transition:opacity .3s}
+html.pending main{opacity:0}
+@media (prefers-reduced-motion:reduce){main{transition:none}}
+
+/* math */
+mjx-container[jax="SVG"]{color:inherit}
+mjx-container[jax="SVG"][display="true"]{margin:.2em 0 !important}
+.eq{max-width:100%;overflow-x:auto;overflow-y:hidden;margin:.5em 0 1.2em;padding:4px 0;-webkit-overflow-scrolling:touch}
+.eq.tight{margin:.2em 0 .6em}
+i.m{font-family:var(--serif);font-style:italic}
+
+/* hero */
+.hero{padding:clamp(36px,9vw,92px) 0 20px}
+h1{font:900 clamp(2.2rem,9vw,4.5rem)/1.14 var(--serif);letter-spacing:-.01em;margin:0 0 .45em}
+h1 span{display:block}
+.lead{max-width:34em;color:var(--muted);font-size:1.05rem;margin:0}
+.bar{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:38px;animation:join 1.3s cubic-bezier(.2,.75,.2,1) .25s both}
+@keyframes join{from{gap:38px}to{gap:3px}}
+.bar a{background:var(--c);color:var(--on);text-decoration:none;padding:16px 14px;display:flex;flex-direction:column;gap:2px;min-height:100px;justify-content:flex-end}
+.bar b{font:700 1.15rem/1.3 var(--serif)}
+.bar span{font-size:.85rem;opacity:.92}
+@media (max-width:640px){.bar{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.bar{animation:none}html{scroll-behavior:auto}}
+
+/* text */
+section{padding:60px 0 4px}
+h2{font:900 clamp(1.6rem,5.4vw,2.4rem)/1.28 var(--serif);margin:0 0 .7em;padding-left:14px;border-left:6px solid var(--accent)}
+h3{font:700 1.3rem/1.4 var(--serif);margin:2.2em 0 .6em;padding-left:12px;border-left:4px solid var(--accent)}
+p{max-width:36em;margin:0 0 1em}
+.la{color:var(--la);font-weight:700}.calc{color:var(--calc);font-weight:700}.alg{color:var(--alg);font-weight:700}.prob{color:var(--prob);font-weight:700}
+
+/* widget */
+.widget{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:6px;padding:16px;margin:22px 0 30px}
+.widget h4{font:700 1.05rem/1.4 var(--serif);margin:0 0 2px}
+.hint{font-size:.9rem;color:var(--muted);margin:0 0 6px;max-width:none}
+.controls{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;margin:10px 0 14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink);font:500 .9rem var(--sans);padding:6px 14px;cursor:pointer;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on)}
+.controls label{display:flex;align-items:center;gap:8px;font-size:.92rem}
+input[type=range]{accent-color:var(--accent);width:150px;min-height:28px}
+output{font-variant-numeric:tabular-nums;min-width:3.4em;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:4px 12px;min-height:34px;font:500 .85rem var(--sans);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+.act{appearance:none;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:5px 14px;min-height:38px;font:700 .88rem var(--sans);cursor:pointer}
+.cv{display:block;width:100%;height:250px}
+.cv.short{height:170px}
+.cvsq{display:block;width:100%;max-width:230px;aspect-ratio:1}
+.grid2{display:grid;grid-template-columns:1fr 210px;gap:16px;align-items:start}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+.cap{font-size:.8rem;color:var(--muted);margin:4px 0 0;max-width:none;line-height:1.5}
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.84rem;color:var(--muted);margin-top:6px}
+.legend i.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend i.dash{display:inline-block;width:16px;height:0;border-top:2px dashed var(--muted);margin-right:6px;vertical-align:3px}
+.readout{font-size:.95rem;margin:14px 0 0;max-width:none;padding-left:12px;border-left:3px solid var(--accent);line-height:1.9}
+.readout b{font-variant-numeric:tabular-nums}
+
+/* permuter */
+.perm{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:center}
+@media (max-width:700px){.perm{grid-template-columns:1fr}}
+.perm svg{width:100%;max-width:300px;height:auto;display:block;touch-action:manipulation}
+.perm svg.mjxsvg{display:inline}
+.perm g.node{cursor:pointer}
+.perm .badge{display:inline-block;padding:2px 12px;border-radius:999px;font-weight:700;font-size:.9rem;color:var(--on);margin-top:6px}
+
+/* ladder */
+.ladder{display:flex;flex-direction:column;align-items:flex-start;margin-top:4px}
+.lv{background:color-mix(in srgb,var(--alg) 15%,var(--surface));border:1px solid var(--alg);padding:6px 12px;font-weight:500;font-size:.95rem;line-height:1.7;min-width:170px;transition:width .35s ease}
+.lv.stuck{background:var(--alg);color:var(--on);font-weight:700}
+.qt{font-size:.85rem;color:var(--muted);padding:2px 0 2px 14px;border-left:2px dashed var(--alg);margin-left:20px;line-height:1.8}
+.verdict{margin:14px 0 0;padding:10px 14px;font-weight:500;max-width:none;font-size:.95rem;line-height:1.8}
+.verdict.ok{background:color-mix(in srgb,var(--calc) 16%,transparent);border-left:4px solid var(--calc)}
+.verdict.bad{background:color-mix(in srgb,var(--alg) 16%,transparent);border-left:4px solid var(--alg)}
+@media (prefers-reduced-motion:reduce){.lv{transition:none}}
+
+/* share bar */
+.shell{display:grid;grid-template-columns:130px 1fr;gap:18px;align-items:center;margin-bottom:14px}
+.shell svg{width:130px;height:130px}
+.sharebar{display:flex;height:34px;border:1px solid var(--line);background:var(--surface);overflow:hidden}
+.sharebar .in{background:color-mix(in srgb,var(--prob) 20%,var(--surface))}
+.sharebar .skin{background:var(--prob);min-width:2px}
+.sharelabels{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-top:4px;gap:8px}
+
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 28px;margin:24px 0 8px}
+@media (max-width:640px){.roles{grid-template-columns:1fr}}
+.role{border-left:5px solid var(--c);padding-left:14px}
+.role b{display:block;font:900 1.2rem/1.4 var(--serif);color:var(--c)}
+.role p{margin:.2em 0 0;font-size:.97rem}
+.closing{font:900 clamp(1.5rem,5.2vw,2.3rem)/1.5 var(--serif);max-width:20em;margin:60px 0 36px}
+details{max-width:36em;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+summary{cursor:pointer;font-weight:700;min-height:32px}
+details li{margin-bottom:.6em}
+details ul{padding-left:1.2em;margin:.6em 0 0}
+footer{margin-top:48px;font-size:.82rem;color:var(--muted);max-width:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1><span>四门课，</span><span>同一个空间的四种投影</span></h1>
+  <p class="lead">大学数学被拆成四门课来教，但它们其实共用一套底层框架。下面用几个可以动手的小演示，把这套框架从头走一遍。</p>
+  <nav class="bar" aria-label="四门课">
+    <a href="#stage" style="--c:var(--la)"><b>线性代数</b><span>提供舞台</span></a>
+    <a href="#fourier" style="--c:var(--calc)"><b>高等数学</b><span>变换的语言</span></a>
+    <a href="#symmetry" style="--c:var(--alg)"><b>近世代数</b><span>对称的法则</span></a>
+    <a href="#highdim" style="--c:var(--prob)"><b>概率论</b><span>高维的统计规律</span></a>
+  </nav>
+</header>
+
+<main>
+
+<!-- 1. 线代 + 微积分 -->
+<section id="stage" style="--accent:var(--la)">
+  <h2>函数是向量，求导是矩阵</h2>
+  <p>先看 <span class="la">线性代数</span> 和 <span class="calc">高等数学</span> 怎么合流。</p>
+  <p>把一个函数在一排位置 \(x_0,x_1,\dots,x_{N-1}\) 上取值，得到一列数，也就是一个向量 \(\mathbf f=(f(x_0),\dots,f(x_{N-1}))\)。位置取得越密，向量越长；密到极限，就是无穷维向量。</p>
+  <p>这时“求导”变成了一个矩阵：每个位置的导数，是右邻居减左邻居，再除以间距 \(h\)。</p>
+  <div class="eq">\[ (D\mathbf f)_i\;\approx\;\frac{f_{i+1}-f_{i-1}}{2h} \]</div>
+  <div class="eq">\[ D=\frac{1}{2h}\begin{pmatrix}-2&2&&&\\-1&0&1&&\\&-1&0&1&\\&&\ddots&\ddots&\ddots\\&&&-2&2\end{pmatrix} \]</div>
+  <p>矩阵乘以向量，就是求导。拖动滑块试试。</p>
+
+  <div class="widget" style="--accent:var(--la)">
+    <h4>把函数摊成向量，用矩阵求导</h4>
+    <p class="hint">蓝点是函数的采样值（向量的每个分量），青点是矩阵乘出来的导数。</p>
+    <div class="controls">
+      <div class="seg" id="modeSeg" role="group" aria-label="选择函数">
+        <button type="button" data-mode="exp" aria-pressed="true">\(e^{kx}\)</button>
+        <button type="button" data-mode="sin" aria-pressed="false">\(\sin(\pi k x)\)</button>
+        <button type="button" data-mode="sq" aria-pressed="false">\(x^{2}\)</button>
+      </div>
+      <label>采样点数 \(N\) <input type="range" id="dN" min="6" max="40" value="14"><output id="dNo">14</output></label>
+      <label>\(k\) <input type="range" id="dK" min="-2" max="3" step="0.1" value="1.2"><output id="dKo">1.2</output></label>
+    </div>
+    <div class="grid2">
+      <div>
+        <canvas class="cv" id="cvF" role="img" aria-label="函数采样值与矩阵求导结果的对比图"></canvas>
+        <div class="legend"><span><i class="sw" style="background:var(--la)"></i>向量 \(\mathbf f\)</span><span><i class="sw" style="background:var(--calc)"></i>矩阵乘出的 \(D\mathbf f\)</span><span><i class="dash"></i>真实导数</span></div>
+      </div>
+      <div>
+        <canvas class="cvsq" id="cvD" role="img" aria-label="差分矩阵的非零位置图"></canvas>
+        <p class="cap">求导矩阵 \(D\)（\(N\times N\)）：只有对角线两侧有值，第一行和最后一行用单侧差分。</p>
+      </div>
+    </div>
+    <p class="readout" id="dRead"></p>
+  </div>
+
+  <h3 id="fourier" style="--accent:var(--calc)">傅里叶变换：向特征向量投影</h3>
+  <p>选 \(e^{kx}\) 时，青点恰好等于蓝点乘 \(k\)：求导矩阵作用一次，只把它整体放缩，方向不变。这样的向量叫<b>特征向量</b>，指数函数就是求导的特征向量。</p>
+  <div class="eq">\[ \frac{d}{dx}\,e^{kx}=k\,e^{kx}\qquad\Longleftrightarrow\qquad D\,\mathbf f=k\,\mathbf f \]</div>
+  <p>周期信号可以拆成这类“指数” \(e^{ikx}\) 的叠加（实数世界里，是成对的 \(\sin\) 和 \(\cos\)）。这些基本波形彼此垂直，像一套坐标轴，所以求信号在每根轴上的坐标，就是做一次投影。这就是傅里叶变换。</p>
+  <div class="eq">\[ f(x)=\sum_{k}c_k\,e^{ikx},\qquad c_k=\frac{1}{2\pi}\int_{-\pi}^{\pi}f(x)\,e^{-ikx}\,dx=\langle f,\;e^{ikx}\rangle \]</div>
+
+  <div class="widget" style="--accent:var(--calc)">
+    <h4>把波形投影到 \(\sin\) 坐标轴上</h4>
+    <p class="hint">灰色是目标波形，青色是前 \(n\) 根坐标轴叠加的结果；下方每根柱子是投影长度 \(b_k\)。三种波形都是奇函数，只需要 \(\sin\) 轴。</p>
+    <div class="eq tight">\[ f(x)\approx\sum_{k=1}^{n}b_k\sin kx,\qquad b_k=\frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\sin(kx)\,dx \]</div>
+    <div class="controls">
+      <div class="seg" id="waveSeg" role="group" aria-label="选择波形">
+        <button type="button" data-wave="square" aria-pressed="true">方波</button>
+        <button type="button" data-wave="saw" aria-pressed="false">锯齿波</button>
+        <button type="button" data-wave="tri" aria-pressed="false">三角波</button>
+      </div>
+      <label>轴数 \(n\) <input type="range" id="fN" min="1" max="40" value="3"><output id="fNo">3</output></label>
+    </div>
+    <canvas class="cv" id="cvW" role="img" aria-label="目标波形与傅里叶部分和"></canvas>
+    <canvas class="cv short" id="cvS" role="img" aria-label="各次谐波的投影系数"></canvas>
+    <p class="readout" id="fRead"></p>
+  </div>
+</section>
+
+<!-- 2. 近世代数 -->
+<section id="symmetry" style="--accent:var(--alg)">
+  <h2>五次方程没有通解，因为对称太结实</h2>
+  <p><span class="alg">近世代数</span>研究的是对称：一个结构里，哪些变换不会改变它。</p>
+  <p>对一个方程，看的是它的根：哪些重排，能保持根之间所有的代数关系？这些重排组成一个群。一般的五次方程，五个根的 \(5!=120\) 种排列全都算数，这个群是 \(S_5\)。</p>
+
+  <div class="widget" style="--accent:var(--alg)">
+    <h4>重排五个根</h4>
+    <p class="hint">依次点两个圆，交换它们的位置。</p>
+    <div class="perm">
+      <svg id="permSvg" viewBox="0 0 300 260" role="group" aria-label="五个根组成的圆环，点两个交换位置"></svg>
+      <div>
+        <p class="readout" id="permRead" style="margin-top:0"></p>
+        <div class="controls" style="margin-bottom:0">
+          <button type="button" class="act" id="permReset">重置</button>
+          <button type="button" class="act" id="permSwap">随机交换一对</button>
+          <button type="button" class="act" id="perm3">随机 3-轮换</button>
+        </div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">一次交换是奇置换，两次合起来是偶置换。所有偶置换构成 \(A_5\)，共 60 个。</p>
+  </div>
+
+  <p>解方程用的“根号”，对应把对称群一层层剥开：每剥一层，剩下的只是循环式的简单对称（阿贝尔群）。能一路剥到底，方程就有根式解。</p>
+
+  <div class="widget" style="--accent:var(--alg)">
+    <h4>可解性的梯子</h4>
+    <p class="hint">选择方程的次数 \(n\)，看 \(S_n\) 能不能一路剥到只剩单位元。台阶越窄，剩下的对称越少。</p>
+    <div class="controls">
+      <div class="seg" id="ladderSeg" role="group" aria-label="选择次数"></div>
+    </div>
+    <div class="ladder" id="ladder"></div>
+    <p class="verdict" id="verdict"></p>
+  </div>
+  <p>对 \(n=5\)，梯子只有两级，而且第二级的商群就是 \(A_5\) 本身：</p>
+  <div class="eq">\[ S_5\ \rhd\ A_5\ \rhd\ \{e\},\qquad S_5/A_5\cong\mathbb{Z}_2,\qquad A_5/\{e\}=A_5 \]</div>
+  <p>\(A_5\) 是单群：它不能再被拆成更小的正规部分，又是非阿贝尔的。结构坚固到没有一层根号能把它剥开，所以五次及以上没有通用的根式公式。</p>
+</section>
+
+<!-- 3. 概率论 -->
+<section id="highdim" style="--accent:var(--prob)">
+  <h2>维度一高，直觉就反着来</h2>
+  <p><span class="prob">概率论</span>进入高维后，会出现几个和二三维经验相反的现象。用同一个维度滑块看两个。</p>
+
+  <div class="widget" style="--accent:var(--prob)">
+    <div class="controls">
+      <label>维度 \(d\) <input type="range" id="dim" min="0" max="100" value="55" style="width:190px"><output id="dimo" style="min-width:4.5em"></output></label>
+      <div class="chips" id="dimChips" role="group" aria-label="常用维度"></div>
+    </div>
+
+    <h4>现象一：体积都在最外面那层皮</h4>
+    <p class="hint">\(d\) 维球的体积正比于 \(r^{d}\)。取球最外层、厚度为半径 \(\varepsilon\) 的一层皮，看它占了多少体积。</p>
+    <div class="eq tight">\[ \frac{V(1)-V(1-\varepsilon)}{V(1)}=1-(1-\varepsilon)^{d}\ \longrightarrow\ 1\qquad(d\to\infty) \]</div>
+    <div class="controls" style="margin-top:6px">
+      <label>皮的厚度 \(\varepsilon\) <input type="range" id="eps" min="0.01" max="0.2" step="0.01" value="0.05"><output id="epso"></output></label>
+    </div>
+    <div class="shell">
+      <div>
+        <svg id="disc" viewBox="0 0 130 130" role="img" aria-label="二维圆盘与外层薄皮示意"></svg>
+      </div>
+      <div>
+        <div class="sharebar" id="sharebar" role="img" aria-label="体积在内部与外层皮之间的占比"><span class="in"></span><span class="skin"></span></div>
+        <div class="sharelabels"><span>内部</span><span>外层皮</span></div>
+      </div>
+    </div>
+    <canvas class="cv short" id="cvShell" role="img" aria-label="外层皮体积占比随维度变化的曲线"></canvas>
+    <p class="readout" id="shellRead"></p>
+
+    <h4 style="margin-top:28px">现象二：随机两个向量几乎必然垂直</h4>
+    <p class="hint">每次随机取两个向量 \(\mathbf u,\mathbf v\)，量它们夹角的余弦：1 是同向，0 是垂直，−1 是反向。</p>
+    <div class="eq tight">\[ \cos\theta=\frac{\langle\mathbf u,\mathbf v\rangle}{\|\mathbf u\|\,\|\mathbf v\|},\qquad \operatorname{Std}(\cos\theta)\approx\frac{1}{\sqrt d} \]</div>
+    <canvas class="cv" id="cvCos" role="img" aria-label="随机向量对夹角余弦的直方图"></canvas>
+    <div class="controls" style="margin:10px 0 0"><button type="button" class="act" id="resample">重新抽样</button></div>
+    <p class="readout" id="cosRead"></p>
+  </div>
+
+  <p>两个现象合起来：高维空间里，随机取一个点几乎必然贴着表面，随机取两个方向几乎必然互相垂直。</p>
+  <p>大模型的向量动辄几千维。“几乎必然垂直”意味着同一个空间里，能塞进远多于维数的、彼此近似独立的方向，这是理解高维表示为什么容得下这么多信息的一条重要直觉。</p>
+</section>
+
+<!-- 4. 结论 -->
+<section id="whole" style="--accent:var(--ink)">
+  <h2>拼回一张图</h2>
+  <div class="roles">
+    <div class="role" style="--c:var(--la)"><b>线性代数：舞台</b><p>向量、函数、信号、词向量，都住在向量空间里。</p></div>
+    <div class="role" style="--c:var(--calc)"><b>高等数学：变换的语言</b><p>微分和积分是这个舞台上的线性变换，指数函数是它的特征向量。</p></div>
+    <div class="role" style="--c:var(--alg)"><b>近世代数：对称的法则</b><p>问结构里哪些变换不改变它。五次方程的答案是：对称太结实，拆不开。</p></div>
+    <div class="role" style="--c:var(--prob)"><b>概率论：高维的统计规律</b><p>维度一高，随机变得可预测：体积挤向表面，方向近乎垂直。</p></div>
+  </div>
+
+  <p class="closing">数学的价值不在于算题，而在于提供超越感官的洞察力。</p>
+
+  <details>
+    <summary>哪些是定理，哪些只是直觉</summary>
+    <ul>
+      <li><b>是定理：</b>求导是线性算子；\(\dfrac{d}{dx}e^{\lambda x}=\lambda e^{\lambda x}\)；周期函数可按 \(e^{ikx}\) 展开，系数就是投影。严格地说，无穷维空间里的求导是无界算子，需要限定定义域。</li>
+      <li><b>是定理：</b>一般五次方程没有根式通解（阿贝尔–鲁菲尼定理，由伽罗瓦理论给出结构性解释）。但这不等于每个五次方程都解不出，比如 \(x^{5}=32\) 就有根式解。</li>
+      <li><b>是定理：</b>高维球的体积集中在表层；独立随机的方向，夹角集中在 \(90^\circ\) 附近，偏差量级约 \(1/\sqrt{d}\)。</li>
+      <li><b>只是直觉：</b>“所以大模型才能高效优化、参数互不干扰”。近似正交确实是理解高维表示的重要直觉，但训练为什么有效，还牵涉优化地形、过参数化等因素，不能只归功于这一条。</li>
+    </ul>
+  </details>
+</section>
+
+</main>
+<footer>依据一段“大学数学是同一套框架”的视频观点整理，演示为示意用途。公式由 MathJax 渲染。</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var C=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()};
+var redraws=[];
+function reg(fn){redraws.push(fn);}
+function redrawAll(){redraws.forEach(function(f){try{f();}catch(e){console.error(e);}});}
+var raf=0;
+function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(redrawAll);}
+function setup(cv){
+  var r=cv.getBoundingClientRect(), dpr=Math.min(window.devicePixelRatio||1,2);
+  var w=Math.max(10,Math.round(r.width)), h=Math.max(10,Math.round(r.height));
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+  var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+  return {ctx:ctx,w:w,h:h};
+}
+function text(ctx,s,x,y,color,align,size){ctx.fillStyle=color;ctx.textAlign=align||'left';ctx.font=(size||12)+'px '+C('--sans');ctx.fillText(s,x,y);}
+function dot(ctx,x,y,r,color){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}
+function line(ctx,x1,y1,x2,y2,color,lw){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=lw||1;ctx.stroke();}
+function fmt(x,d){return (Math.abs(x)<1e-12?0:x).toFixed(d===undefined?2:d).replace('-','−');}
+function setSeg(container,attr,val){$$(container+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute(attr)===val?'true':'false');});}
+
+/* 用 MathJax 同步把 TeX 变成内联 SVG 字符串，用于动态更新的文字；失败时退回斜体纯文本 */
+var mcache={};
+function M(t){
+  if(mcache[t]!==undefined)return mcache[t];
+  var out;
+  try{
+    var node=window.MathJax.tex2svg(t,{display:false});
+    out=window.MathJax.startup.adaptor.outerHTML(node);
+  }catch(e){
+    out='<i class="m">'+t.replace(/\\/g,'').replace(/[{}]/g,'')+'</i>';
+  }
+  mcache[t]=out;return out;
+}
+
+function start(){
+
+/* ========== 1a. 函数=向量，求导=矩阵 ========== */
+(function(){
+  var L=1, mode='exp';
+  var cvF=$('#cvF'), cvD=$('#cvD'), Nel=$('#dN'), Kel=$('#dK');
+  var fns={
+    exp:{f:function(x,k){return Math.exp(k*x);}, d:function(x,k){return k*Math.exp(k*x);}},
+    sin:{f:function(x,k){return Math.sin(Math.PI*k*x);}, d:function(x,k){return Math.PI*k*Math.cos(Math.PI*k*x);}},
+    sq:{f:function(x){return x*x;}, d:function(x){return 2*x;}}
+  };
+  function build(){
+    var N=+Nel.value,k=+Kel.value,h=L/(N-1),g=fns[mode],i,j;
+    var xs=[],v=[];
+    for(i=0;i<N;i++){xs.push(i*h);v.push(g.f(i*h,k));}
+    var D=[];
+    for(i=0;i<N;i++){
+      var row=new Float64Array(N);
+      if(i===0){row[0]=-1/h;row[1]=1/h;}
+      else if(i===N-1){row[N-2]=-1/h;row[N-1]=1/h;}
+      else{row[i-1]=-1/(2*h);row[i+1]=1/(2*h);}
+      D.push(row);
+    }
+    var dv=D.map(function(row){var s=0;for(j=0;j<N;j++)s+=row[j]*v[j];return s;});
+    return {N:N,k:k,h:h,xs:xs,v:v,D:D,dv:dv};
+  }
+  function drawMain(){
+    var s=setup(cvF),ctx=s.ctx,w=s.w,h=s.h,S=build(),N=S.N,k=S.k,g=fns[mode];
+    var ml=30,mr=10,mt=12,mb=24,pw=w-ml-mr,ph=h-mt-mb,lo=0,hi=0,i;
+    var M_=160,dense=[];
+    for(i=0;i<=M_;i++){var x=i/M_*L,a=g.f(x,k),b=g.d(x,k);dense.push([x,a,b]);lo=Math.min(lo,a,b);hi=Math.max(hi,a,b);}
+    S.v.concat(S.dv).forEach(function(y){lo=Math.min(lo,y);hi=Math.max(hi,y);});
+    var pad=(hi-lo)*.08||1;lo-=pad;hi+=pad;
+    var px=function(x){return ml+x/L*pw;}, py=function(y){return mt+(hi-y)/(hi-lo)*ph;};
+    var muted=C('--muted'),la=C('--la'),calc=C('--calc'),grid=C('--line');
+    line(ctx,ml,py(0),w-mr,py(0),grid,1);
+    text(ctx,'0',ml-6,py(0)+4,muted,'right');
+    text(ctx,'0',px(0),h-6,muted,'center');
+    text(ctx,'1',px(1),h-6,muted,'center');
+    ctx.globalAlpha=.35;ctx.beginPath();
+    dense.forEach(function(p,idx){idx?ctx.lineTo(px(p[0]),py(p[1])):ctx.moveTo(px(p[0]),py(p[1]));});
+    ctx.strokeStyle=la;ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=1;
+    ctx.setLineDash([5,4]);ctx.beginPath();
+    dense.forEach(function(p,idx){idx?ctx.lineTo(px(p[0]),py(p[2])):ctx.moveTo(px(p[0]),py(p[2]));});
+    ctx.strokeStyle=muted;ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);
+    var off=N>28?2:3.5, r=N>28?2.4:3.3;
+    for(i=0;i<N;i++){
+      var x0=px(S.xs[i]);
+      line(ctx,x0-off,py(0),x0-off,py(S.v[i]),la,1.4);dot(ctx,x0-off,py(S.v[i]),r,la);
+      line(ctx,x0+off,py(0),x0+off,py(S.dv[i]),calc,1.4);dot(ctx,x0+off,py(S.dv[i]),r,calc);
+    }
+  }
+  function drawMat(){
+    var s=setup(cvD),ctx=s.ctx,w=s.w,h=s.h,S=build(),N=S.N,cell=Math.min(w,h)/N,i,j;
+    var pos=C('--calc'),neg=C('--muted');
+    for(i=0;i<N;i++)for(j=0;j<N;j++){
+      var val=S.D[i][j];
+      if(val>0){ctx.globalAlpha=1;ctx.fillStyle=pos;}
+      else if(val<0){ctx.globalAlpha=.6;ctx.fillStyle=neg;}
+      else continue;
+      ctx.fillRect(j*cell,i*cell,Math.max(1,cell-.6),Math.max(1,cell-.6));
+    }
+    ctx.globalAlpha=1;ctx.strokeStyle=C('--line');ctx.lineWidth=1;ctx.strokeRect(.5,.5,cell*N-1,cell*N-1);
+  }
+  function readout(){
+    var S=build(),N=S.N,k=S.k,rat=[],i;
+    for(i=1;i<N-1;i++){
+      var r=Math.abs(S.v[i])<1e-6?null:S.dv[i]/S.v[i];
+      if(rat.length<5)rat.push(r===null||Math.abs(r)>=1e4?'∞':fmt(r,2));
+    }
+    var list=rat.join('，'),el=$('#dRead'),q=M('D\\mathbf f\\,/\\,\\mathbf f');
+    if(mode==='exp'){
+      el.innerHTML='逐点相除 '+q+'：'+list+' ……处处约等于 <b>'+M('k='+k.toFixed(1))+'</b>。这就是特征向量：矩阵作用一次，只把向量整体放缩 '+M('k')+' 倍。采样越密（'+M('N')+' 越大），比值越贴近 '+M('k')+'。';
+    }else if(mode==='sin'){
+      el.innerHTML='逐点相除 '+q+'：'+list+' ……比值逐点不同，甚至发散。求导把 '+M('\\sin')+' 变成了 '+M('\\cos')+'，方向变了，所以不是特征向量。把两者配成复指数 '+M('e^{ix}')+'，才又回到特征向量。';
+    }else{
+      el.innerHTML='逐点相除 '+q+'：'+list+' ……比值随位置变化（'+M('x^2')+' 求导得 '+M('2x')+'，幂次降一级），所以不是特征向量。';
+    }
+  }
+  function update(){$('#dNo').textContent=Nel.value;$('#dKo').textContent=(+Kel.value).toFixed(1).replace('-','−');drawMain();drawMat();readout();}
+  Nel.addEventListener('input',update);Kel.addEventListener('input',update);
+  $$('[data-mode]').forEach(function(b){b.addEventListener('click',function(){mode=b.getAttribute('data-mode');setSeg('#modeSeg','data-mode',mode);update();});});
+  reg(function(){drawMain();drawMat();});
+  update();
+})();
+
+/* ========== 1b. 傅里叶 ========== */
+(function(){
+  var MM=2048,K=40,xsM=[],j,k;
+  for(j=0;j<MM;j++)xsM.push(-Math.PI+(j+.5)*2*Math.PI/MM);
+  var waves={
+    square:function(x){return Math.sign(Math.sin(x));},
+    saw:function(x){return x/Math.PI;},
+    tri:function(x){return 2/Math.PI*Math.asin(Math.sin(x));}
+  };
+  var coef={};
+  Object.keys(waves).forEach(function(key){
+    var f=waves[key],arr=[];
+    for(k=1;k<=K;k++){var s=0;for(j=0;j<MM;j++)s+=f(xsM[j])*Math.sin(k*xsM[j]);arr.push(s*(2*Math.PI/MM)/Math.PI);}
+    coef[key]=arr;
+  });
+  var wave='square',cvW=$('#cvW'),cvS=$('#cvS'),Nel=$('#fN');
+  function partial(x,n){var s=0;for(var i=0;i<n;i++)s+=coef[wave][i]*Math.sin((i+1)*x);return s;}
+  function drawWave(){
+    var s=setup(cvW),ctx=s.ctx,w=s.w,h=s.h,n=+Nel.value,f=waves[wave];
+    var ml=30,mr=10,mt=10,mb=22,pw=w-ml-mr,ph=h-mt-mb,ym=1.4;
+    var px=function(x){return ml+(x+Math.PI)/(2*Math.PI)*pw;},py=function(y){return mt+(ym-y)/(2*ym)*ph;};
+    var muted=C('--muted'),grid=C('--line'),calc=C('--calc');
+    line(ctx,ml,py(0),w-mr,py(0),grid,1);
+    text(ctx,'0',ml-6,py(0)+4,muted,'right');
+    text(ctx,'−π',px(-Math.PI),h-5,muted,'left');text(ctx,'0',px(0),h-5,muted,'center');text(ctx,'π',px(Math.PI),h-5,muted,'right');
+    var P=500,i,x;
+    ctx.globalAlpha=.55;ctx.beginPath();
+    for(i=0;i<=P;i++){x=-Math.PI+i/P*2*Math.PI;var y=f(x===Math.PI?Math.PI-1e-9:x);i?ctx.lineTo(px(x),py(y)):ctx.moveTo(px(x),py(y));}
+    ctx.strokeStyle=muted;ctx.lineWidth=4;ctx.stroke();ctx.globalAlpha=1;
+    ctx.beginPath();
+    for(i=0;i<=P;i++){x=-Math.PI+i/P*2*Math.PI;i?ctx.lineTo(px(x),py(partial(x,n))):ctx.moveTo(px(x),py(partial(x,n)));}
+    ctx.strokeStyle=calc;ctx.lineWidth=2.2;ctx.stroke();
+  }
+  function drawSpec(){
+    var s=setup(cvS),ctx=s.ctx,w=s.w,h=s.h,n=+Nel.value,c=coef[wave],i;
+    var ml=30,mr=10,mt=8,mb=20,pw=w-ml-mr,ph=h-mt-mb,mx=0;
+    c.forEach(function(v){mx=Math.max(mx,Math.abs(v));});mx*=1.15;
+    var py=function(y){return mt+(mx-y)/(2*mx)*ph;},bw=pw/K;
+    var muted=C('--muted'),calc=C('--calc');
+    line(ctx,ml,py(0),w-mr,py(0),C('--line'),1);
+    for(i=0;i<K;i++){
+      var x=ml+i*bw+bw*.15,y0=py(0),y1=py(c[i]);
+      ctx.globalAlpha=i<n?1:.25;ctx.fillStyle=i<n?calc:muted;
+      ctx.fillRect(x,Math.min(y0,y1),bw*.7,Math.max(1,Math.abs(y1-y0)));
+    }
+    ctx.globalAlpha=1;
+    text(ctx,'k = 1',ml,h-5,muted,'left');text(ctx,'40',w-mr,h-5,muted,'right');
+  }
+  function readout(){
+    var n=+Nel.value,f=waves[wave],e=0,j;
+    for(j=0;j<MM;j++){var d=f(xsM[j])-partial(xsM[j],n);e+=d*d;}
+    e=Math.sqrt(e/MM);
+    var extra=wave==='square'?' 拖到很大你会发现，跳变处总留着约 9% 的过冲（吉布斯现象）：逐点收敛和整体收敛，在无穷维里是两回事。':'';
+    $('#fRead').innerHTML='前 <b>'+n+'</b> 根坐标轴叠加，均方根误差 <b>'+fmt(e,3)+'</b>。每多一根轴，误差就小一些。'+extra;
+  }
+  function update(){$('#fNo').textContent=Nel.value;drawWave();drawSpec();readout();}
+  Nel.addEventListener('input',update);
+  $$('[data-wave]').forEach(function(b){b.addEventListener('click',function(){wave=b.getAttribute('data-wave');setSeg('#waveSeg','data-wave',wave);update();});});
+  reg(function(){drawWave();drawSpec();});
+  update();
+})();
+
+/* ========== 2a. 重排五个根 ========== */
+(function(){
+  var svg=$('#permSvg'),NS='http://www.w3.org/2000/svg',arr=[0,1,2,3,4],sel=null,LET='abcde';
+  var cx=150,cy=130,R=92;
+  function pos(i){var a=(-90+72*i)*Math.PI/180;return [cx+R*Math.cos(a),cy+R*Math.sin(a)];}
+  function cyclesOf(){
+    var seen=[false,false,false,false,false],out=[],total=0,i;
+    for(i=0;i<5;i++){
+      if(seen[i])continue;total++;
+      var c=[i],j=arr[i];seen[i]=true;
+      while(j!==i){c.push(j);seen[j]=true;j=arr[j];}
+      if(c.length>1)out.push('('+c.map(function(x){return LET[x];}).join('\\,')+')');
+    }
+    return {cyc:out,even:((5-total)%2===0)};
+  }
+  function click(i){
+    if(sel===null){sel=i;}
+    else if(sel===i){sel=null;}
+    else{var t=arr[sel];arr[sel]=arr[i];arr[i]=t;sel=null;}
+    render();
+  }
+  function render(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var i,poly=document.createElementNS(NS,'polygon');
+    poly.setAttribute('points',[0,1,2,3,4].map(function(k){return pos(k).join(',');}).join(' '));
+    poly.setAttribute('fill','none');poly.setAttribute('stroke',C('--line'));poly.setAttribute('stroke-width','1.5');
+    svg.appendChild(poly);
+    for(i=0;i<5;i++){
+      var p=pos(i),g=document.createElementNS(NS,'g');
+      g.setAttribute('class','node');g.setAttribute('tabindex','0');g.setAttribute('role','button');
+      g.setAttribute('aria-label','位置 '+(i+1)+'，当前是根 '+LET[arr[i]]+(sel===i?'（已选中）':''));
+      var c=document.createElementNS(NS,'circle');
+      c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',25);
+      c.setAttribute('fill','hsl('+(arr[i]*58+210)%360+' 52% 40%)');
+      c.setAttribute('stroke',sel===i?C('--ink'):'transparent');c.setAttribute('stroke-width',sel===i?3.5:0);
+      var t=document.createElementNS(NS,'text');
+      t.setAttribute('x',p[0]);t.setAttribute('y',p[1]+6);t.setAttribute('text-anchor','middle');
+      t.setAttribute('fill','#fff');t.setAttribute('font-size','19');t.setAttribute('font-weight','700');
+      t.setAttribute('font-family',C('--serif'));t.setAttribute('font-style','italic');
+      t.textContent=LET[arr[i]];
+      g.appendChild(c);g.appendChild(t);
+      (function(idx){
+        g.addEventListener('click',function(){click(idx);});
+        g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();click(idx);}});
+      })(i);
+      svg.appendChild(g);
+    }
+    var r=cyclesOf(),el=$('#permRead');
+    var name=r.cyc.length?M('\\sigma='+r.cyc.join('')):M('\\sigma=e')+'（恒等，什么都没变）';
+    el.innerHTML='当前重排 '+name+'<br>'+
+      '<span class="badge" style="background:'+(r.even?C('--calc'):C('--alg'))+'">'+(r.even?'偶置换，属于 '+M('A_5'):'奇置换，不属于 '+M('A_5'))+'</span>';
+  }
+  function swapRand(){var a=Math.floor(Math.random()*5),b;do{b=Math.floor(Math.random()*5);}while(b===a);var t=arr[a];arr[a]=arr[b];arr[b]=t;sel=null;render();}
+  function tri(){var idx=[0,1,2,3,4].sort(function(){return Math.random()-.5;}).slice(0,3);var a=arr[idx[0]],b=arr[idx[1]],c=arr[idx[2]];arr[idx[0]]=c;arr[idx[1]]=a;arr[idx[2]]=b;sel=null;render();}
+  $('#permReset').addEventListener('click',function(){arr=[0,1,2,3,4];sel=null;render();});
+  $('#permSwap').addEventListener('click',swapRand);
+  $('#perm3').addEventListener('click',tri);
+  reg(render);
+  render();
+})();
+
+/* ========== 2b. 可解性梯子 ========== */
+(function(){
+  function fact(n){return n<=1?1:n*fact(n-1);}
+  function data(n){
+    var Z2='\\mathbb{Z}_2',Z3='\\mathbb{Z}_3',E='\\{e\\}';
+    if(n===2)return {lv:[['S_2',2,''],[E,1,'']],q:[Z2],ok:true};
+    if(n===3)return {lv:[['S_3',6,''],['A_3=\\mathbb{Z}_3',3,''],[E,1,'']],q:[Z2,Z3],ok:true};
+    if(n===4)return {lv:[['S_4',24,''],['A_4',12,''],['V_4',4,'（克莱因四元群）'],[Z2,2,''],[E,1,'']],q:[Z2,Z3,Z2,Z2],ok:true};
+    return {lv:[['S_'+n,fact(n),''],['A_'+n,fact(n)/2,'']],q:[Z2],ok:false};
+  }
+  var seg=$('#ladderSeg'),cur=5;
+  [2,3,4,5,6,7].forEach(function(n){
+    var b=document.createElement('button');b.type='button';b.setAttribute('data-n',n);b.setAttribute('aria-pressed',n===cur?'true':'false');
+    b.innerHTML=M('n='+n);
+    b.addEventListener('click',function(){cur=n;render();});seg.appendChild(b);
+  });
+  function render(){
+    setSeg('#ladderSeg','data-n',String(cur));
+    var d=data(cur),el=$('#ladder'),maxO=d.lv[0][1],html='';
+    d.lv.forEach(function(l,i){
+      var stuck=!d.ok&&i===d.lv.length-1;
+      var wpct=maxO>1?30+70*Math.log(Math.max(l[1],1))/Math.log(maxO):100;
+      html+='<div class="lv'+(stuck?' stuck':'')+'" style="width:'+wpct.toFixed(1)+'%">'+M(l[0])+l[2]+'　'+l[1]+' 个对称'+(stuck?'　单群，不能再拆':'')+'</div>';
+      if(i<d.lv.length-1)html+='<div class="qt">↓ 剥掉一层：商群 '+M(d.q[i])+'（阿贝尔）</div>';
+    });
+    el.innerHTML=html;
+    var v=$('#verdict');
+    if(d.ok){v.className='verdict ok';v.innerHTML='每一层剥下来的都是阿贝尔群，梯子能走到底。<b>可解，有根式解。</b>';}
+    else{v.className='verdict bad';v.innerHTML='剥掉一层之后停在 '+M('A_'+cur)+'：它是非阿贝尔的单群，再没有台阶了。<b>不可解，没有根式通解。</b>';}
+  }
+  render();
+})();
+
+/* ========== 3. 高维 ========== */
+(function(){
+  var dEl=$('#dim'),eEl=$('#eps'),samp={d:0,arr:null},timer=0,spare=null;
+  var PRESETS=[2,3,10,100,1000,3000];
+  function dim(){return Math.round(2*Math.pow(1500,dEl.value/100));}
+  function randn(){
+    if(spare!==null){var s=spare;spare=null;return s;}
+    var u=0,v=Math.random();while(u===0)u=Math.random();
+    var r=Math.sqrt(-2*Math.log(u)),t=2*Math.PI*v;spare=r*Math.sin(t);return r*Math.cos(t);
+  }
+  function sample(d){
+    var P=d>1500?500:(d>500?800:1500),out=new Float64Array(P),i,j;
+    for(i=0;i<P;i++){
+      var dt=0,na=0,nb=0;
+      for(j=0;j<d;j++){var a=randn(),b=randn();dt+=a*b;na+=a*a;nb+=b*b;}
+      out[i]=dt/Math.sqrt(na*nb);
+    }
+    samp={d:d,arr:out};
+  }
+  var chips=$('#dimChips');
+  PRESETS.forEach(function(d){
+    var b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('data-d',d);b.textContent=d;
+    b.addEventListener('click',function(){dEl.value=Math.round(100*Math.log(d/2)/Math.log(1500));update(true);});
+    chips.appendChild(b);
+  });
+  function shellStats(){
+    var d=dim(),eps=+eEl.value,q=Math.exp(d*Math.log(1-eps)),p=1-q;
+    return {d:d,eps:eps,q:q,p:p};
+  }
+  function sciTex(x){if(x<=0)return '0';var e=Math.floor(Math.log10(x)),m=x/Math.pow(10,e);return m.toFixed(1)+'\\times10^{'+e+'}';}
+  function drawDisc(){
+    var S=shellStats(),svg=$('#disc'),R=58,r=R*(1-S.eps);
+    svg.innerHTML='<circle cx="65" cy="65" r="'+R+'" fill="'+C('--prob')+'"/><circle cx="65" cy="65" r="'+r.toFixed(2)+'" fill="'+C('--surface')+'" stroke="'+C('--line')+'"/>';
+  }
+  function drawShell(){
+    var S=shellStats(),s=setup($('#cvShell')),ctx=s.ctx,w=s.w,h=s.h;
+    var ml=40,mr=12,mt=10,mb=24,pw=w-ml-mr,ph=h-mt-mb,muted=C('--muted'),prob=C('--prob'),i;
+    var lg=function(d){return (Math.log(d)-Math.log(2))/(Math.log(3000)-Math.log(2));};
+    var px=function(d){return ml+lg(d)*pw;},py=function(y){return mt+(1-y)*ph;};
+    [0,.5,1].forEach(function(t){line(ctx,ml,py(t),w-mr,py(t),C('--line'),1);text(ctx,Math.round(t*100)+'%',ml-6,py(t)+4,muted,'right');});
+    [2,10,100,1000].forEach(function(d){text(ctx,String(d),px(d),h-6,muted,'center');});
+    text(ctx,'3000',w-mr,h-6,muted,'right');
+    ctx.beginPath();
+    for(i=0;i<=200;i++){var d=Math.exp(Math.log(2)+i/200*(Math.log(3000)-Math.log(2))),y=1-Math.pow(1-S.eps,d);i?ctx.lineTo(px(d),py(y)):ctx.moveTo(px(d),py(y));}
+    ctx.strokeStyle=prob;ctx.lineWidth=2.4;ctx.stroke();
+    line(ctx,px(S.d),py(0),px(S.d),py(S.p),prob,1.2);
+    dot(ctx,px(S.d),py(S.p),5.5,prob);
+    ctx.strokeStyle=C('--surface');ctx.lineWidth=2;ctx.beginPath();ctx.arc(px(S.d),py(S.p),5.5,0,Math.PI*2);ctx.stroke();
+  }
+  function shellRead(){
+    var S=shellStats(),bar=$('#sharebar');
+    bar.querySelector('.in').style.width=(S.q*100)+'%';
+    bar.querySelector('.skin').style.width=(S.p*100)+'%';
+    bar.querySelector('.skin').style.flex='1 1 auto';
+    var twoD=(1-Math.pow(1-S.eps,2))*100;
+    var msg,pre=M('d='+S.d)+'：外层 '+Math.round(S.eps*100)+'% 厚的皮，';
+    if(S.q<0.001)msg=pre+'装着几乎全部体积，留给内部的只有 <b>'+M(sciTex(S.q))+'</b>。';
+    else msg=pre+'装着 <b>'+(S.p*100).toFixed(1)+'%</b> 的体积。';
+    $('#shellRead').innerHTML=msg+' 作对比，二维圆盘里同样一层皮只占 '+twoD.toFixed(1)+'%。';
+  }
+  function drawCos(){
+    var s=setup($('#cvCos')),ctx=s.ctx,w=s.w,h=s.h,BINS=61,i;
+    var ml=30,mr=10,mt=10,mb=26,pw=w-ml-mr,ph=h-mt-mb,muted=C('--muted'),prob=C('--prob');
+    var arr=samp.arr,d=samp.d;
+    if(!arr)return;
+    var cnt=new Array(BINS).fill(0);
+    for(i=0;i<arr.length;i++){cnt[Math.min(BINS-1,Math.max(0,Math.floor((arr[i]+1)/2*BINS)))]++;}
+    var fr=cnt.map(function(c){return c/arr.length;});
+    var th=[];
+    if(d>=6){for(i=0;i<BINS;i++){var x=-1+(i+.5)*2/BINS;th.push(Math.sqrt(d/(2*Math.PI))*Math.exp(-d*x*x/2)*2/BINS);}}
+    var ymax=Math.max.apply(null,fr.concat(th))*1.12||1;
+    var py=function(y){return mt+(1-y/ymax)*ph;},bw=pw/BINS;
+    line(ctx,ml,py(0),w-mr,py(0),C('--line'),1);
+    text(ctx,'−1 反向',ml,h-7,muted,'left');text(ctx,'0 垂直',ml+pw/2,h-7,muted,'center');text(ctx,'1 同向',w-mr,h-7,muted,'right');
+    line(ctx,ml+pw/2,mt,ml+pw/2,py(0),C('--line'),1);
+    ctx.fillStyle=prob;
+    for(i=0;i<BINS;i++){var y1=py(fr[i]);ctx.fillRect(ml+i*bw+.5,y1,Math.max(1,bw-1),py(0)-y1);}
+    if(th.length){
+      ctx.setLineDash([4,3]);ctx.beginPath();
+      th.forEach(function(v,idx){var x=ml+(idx+.5)*bw;idx?ctx.lineTo(x,py(v)):ctx.moveTo(x,py(v));});
+      ctx.strokeStyle=C('--ink');ctx.lineWidth=1.4;ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+  function cosRead(){
+    var arr=samp.arr,d=samp.d;if(!arr)return;
+    var i,sa=0,sb=0,near=0,ang=new Float64Array(arr.length);
+    for(i=0;i<arr.length;i++){ang[i]=Math.acos(Math.max(-1,Math.min(1,arr[i])))*180/Math.PI;sa+=ang[i];if(Math.abs(arr[i])<0.1)near++;}
+    var mean=sa/arr.length;for(i=0;i<arr.length;i++)sb+=(ang[i]-mean)*(ang[i]-mean);
+    var sd=Math.sqrt(sb/arr.length);
+    $('#cosRead').innerHTML=M('d='+d)+'，抽了 '+arr.length+' 对随机向量：夹角 <b>'+M(mean.toFixed(1)+'^\\circ\\pm'+sd.toFixed(1)+'^\\circ')+'</b>，其中 <b>'+(near/arr.length*100).toFixed(1)+'%</b> 的余弦落在 '+M('\\pm0.1')+' 以内。'+(d>=6?' 虚线是理论预期，宽度约 '+M('1/\\sqrt{d}')+'。':' 维度很低时，夹角在整个范围内散开。');
+  }
+  function update(now){
+    var d=dim();
+    $('#dimo').textContent=d;$('#epso').textContent=Math.round(+eEl.value*100)+'%';
+    $$('#dimChips .chip').forEach(function(b){b.setAttribute('aria-pressed',+b.getAttribute('data-d')===d?'true':'false');});
+    drawDisc();drawShell();shellRead();
+    clearTimeout(timer);
+    var run=function(){sample(d);drawCos();cosRead();};
+    if(now===true)run();else timer=setTimeout(run,70);
+  }
+  dEl.addEventListener('input',function(){update(false);});
+  eEl.addEventListener('input',function(){$('#epso').textContent=Math.round(+eEl.value*100)+'%';drawDisc();drawShell();shellRead();});
+  $('#resample').addEventListener('click',function(){sample(dim());drawCos();cosRead();});
+  reg(function(){drawDisc();drawShell();drawCos();});
+  update(true);
+})();
+
+/* ========== 主题/尺寸变化时重绘 ========== */
+window.addEventListener('resize',schedule);
+if(window.ResizeObserver){new ResizeObserver(schedule).observe(document.body);}
+if(window.matchMedia){var mq=window.matchMedia('(prefers-color-scheme: dark)');(mq.addEventListener?mq.addEventListener('change',schedule):mq.addListener(schedule));}
+new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(schedule);}
+document.documentElement.classList.remove('pending');
+}
+
+/* 等 MathJax 排完静态公式后再启动页面逻辑；MathJax 加载失败时也照常启动 */
+var started=false;
+function go(){if(started)return;started=true;start();}
+function ready(){
+  var mj=window.MathJax;
+  if(mj&&mj.startup&&mj.startup.promise){mj.startup.promise.then(go,go);}
+  else go();
+}
+setTimeout(go,6000);
+if(document.readyState==='complete')ready();else window.addEventListener('load',ready);
+})();
+</script>
+</body>
+</html>
